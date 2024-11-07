@@ -1,67 +1,150 @@
- <div class="row">
-      {% assign blocks = section.blocks | where: 'type', 'product' %}
-          {% for block in blocks %}
-            {% assign productvariants = block.settings.product.variants %}
-            {% for productvariant in productvariants %}
-            {% if productvariant.option1 == "Yellow Gold" %}
-              <div class="col-lg-3 col-md-4 col-sm-6 col-6">
-                <a class="coll-box style2" href="{{ productvariant.url }}">
-                  {% if productvariant.image.src %}
-                    <img src="{{ productvariant.image.src | img_url: 'master' }}" alt="{{ productvariant.title }}">
-                  {% endif %}
-                  <div class="coll-box-text style2">
-                    <h3>{{ block.settings.product.title }} · {{ productvariant.option1 }}</h3>
-                    <p>{{ productvariant.price | money }}</p>
-                  </div>
-                </a>
+<script>
+  // Function to set a cookie
+  function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+      var expires = "expires="+d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+
+  // Function to get a cookie value
+  function getCookie(cname) {
+      var name = cname + "=";
+      var decodedCookie = decodeURIComponent(document.cookie);
+      var ca = decodedCookie.split(';');
+      for (var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+          }
+      }
+      return "";
+  }
+
+  // Function to display the popup
+  function displayPopup() {
+      if (!getCookie('visitedHomePage')) {
+          // Show the modal using Bootstrap's modal functionality
+          var modal = new bootstrap.Modal(document.getElementById('newsletter-modal'));
+          modal.show();
+
+          // Set the cookie to expire after 30 days
+          setCookie('visitedHomePage', true, 30);
+      }
+  }
+
+  // Call the displayPopup function when the page loads
+  window.onload = function() {
+      displayPopup();
+  };
+</script>
+
+<!-- HTML for the newsletter modal -->
+<div class="modal fade newsletter-modal" id="newsletter-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">
+          <i class="flaticon-close"></i>
+        </span>
+      </button>
+      <div class="modal-body">
+        <div class="newsletter-modal-content">
+          <div class="row align-items-center">
+            <div class="col-lg-6 col-md-6">
+              <div class="newsletter-img">
+                <img src="{{ section.settings.news-img  | img_url: 'master'}}" alt="image">
               </div>
-            {% endif %}
-        {% endfor %}
-      {% endfor %}
+            </div>
+            <div class="col-lg-6 col-md-6">
+              <div class="newsletter-content">
+                <h3>Subscribe to our newsletter</h3>
+                <p>Subscribe Our Newsletter To Get Our Update Newsa</p>
+                {% form 'customer', class: 'newsletter-form' %}
+                  <input type="hidden" name="contact[tags]" value="newsletter">
+                  <input
+                    id="NewsletterForm--{{ section.id }}"
+                    name="contact[email]"
+                    type="email"
+                    class="form-control"
+                    value="{{ form.email }}"
+                    aria-required="true"
+                    autocorrect="off"
+                    autocapitalize="off"
+                    autocomplete="email"
+                    {% if form.errors %}
+                      autofocus
+                      aria-invalid="true"
+                      aria-describedby="Newsletter-error--{{ section.id }}"
+                    {% elsif form.posted_successfully? %}
+                      aria-describedby="Newsletter-success--{{ section.id }}"
+                    {% endif %}
+                    placeholder="{{ 'newsletter.label' | t }}"
+                    required
+                  >
+                  {%- if form.errors -%}
+                    <small class="newsletter-form__message form__message" id="Newsletter-error--{{ section.id }}">
+                      <span class="svg-wrapper">
+                        {{- 'icon-error.svg' | inline_asset_content -}}
+                      </span>
+                      {{- form.errors.translated_fields.email | capitalize }}
+                      {{ form.errors.messages.email -}}
+                    </small>
+                  {%- endif -%}
+                  {%- if form.posted_successfully? -%}
+                    <h3
+                      class="newsletter-form__message newsletter-form__message--success form__message"
+                      id="Newsletter-success--{{ section.id }}"
+                      tabindex="-1"
+                      autofocus
+                    >
+                      <span class="svg-wrapper">
+                        {{- 'icon-success.svg' | inline_asset_content -}}
+                      </span>
+                      {{- 'newsletter.success' | t }}
+                    </h3>
+                  {%- endif -%}
+                  <button
+                    class="default-btn"
+                    type="submit"
+                    name="commit"
+                    id="Subscribe"
+                  >
+                    Subscribe Now
+                  </button>
+                  <div id="validator-newsletter" class="form-result"></div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="popupcheck">
+                    <label class="form-check-label" for="popupcheck"> Don’t show this popup again </label>
+                  </div>
+                {% endform %}
+              </div>
+            </div>
+            <!-- Additional content for the popup can go here -->
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</section>
+</div>
+
 {% schema %}
 {
-  "name": "Home Closet",
+  "name": "Newsletter Popup",
   "settings": [
-    {
-      "type": "text",
-      "id": "heading",
-      "label": "Heading",
-      "default": "Headding"
-    },
-    {
-        "type": "richtext",
-        "id": "text1",
-        "label": "Text",
-    },
-    {
-      "type": "image_picker",
-      "id": "Image",
-      "label": "closet Image"
-    },
-    {
-      "type": "url",
-      "id": "image-link",
-      "label": "Image Link"
-    }
-  ],
-  "blocks": [
-    {
-      "type": "product",
-      "name": "Product",
-      "settings": [
-        {
-          "type": "product",
-          "id": "product",
-          "label": "Product",
-        }
-      ]
-    }
+  {
+    "type": "image_picker",
+    "id": "news-img",
+    "label": "Newsletter Image"
+  }
   ],
   "presets": [
-    {"name": "Home2 Closet"}
+    {
+      "name": "Newsletter Popup"
+    }
   ]
 }
 {% endschema %}
