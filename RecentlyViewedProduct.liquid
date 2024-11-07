@@ -15,6 +15,7 @@
       });
     </script>
 <!-- recently-viewed.js -->
+ <script>
 // Global variable to store recently viewed products
 let globalRecentlyViewed = [];
 
@@ -76,7 +77,7 @@ function getRecentlyViewedProducts() {
   }
   return globalRecentlyViewed;
 }
-
+ </script>
 <!-- fetch Recently Viewed Product -->
 <div class="best-selling-area recently-browse-section pt-70 pb-40 {% if template.suffix == "algo" %}bg-black{% endif %}">
   <div class="container">
